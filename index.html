@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#14251f">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="競馬ブック2026">
+<link rel="manifest" href="./manifest.json">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<title>競馬ブック2026</title>
+<style>
+:root{color-scheme:light;--bg:#f4f6f3;--card:#fff;--ink:#18241f;--muted:#617067;--line:#dce4dd;--green:#176b4a;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",Meiryo,sans-serif;padding:env(safe-area-inset-top) 14px calc(24px + env(safe-area-inset-bottom));}
+main{max-width:720px;margin:0 auto}.hero{background:#14251f;color:#fff;padding:20px 18px;border-radius:18px;margin:12px 0}.hero h1{font-size:23px;margin:0 0 6px}.hero p{margin:0;color:#d8e7de;font-size:13px;line-height:1.6}
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin:12px 0}.stat,.panel{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}.stat small{color:var(--muted);display:block}.stat strong{font-size:22px;display:block;margin-top:4px}
+nav{display:flex;gap:7px;margin:14px 0;position:sticky;top:0;background:var(--bg);padding:5px 0;z-index:2}nav button{flex:1;padding:11px 5px;font-size:13px}
+button{border:0;border-radius:10px;background:var(--green);color:#fff;font-weight:650;padding:12px 14px;font-size:15px;cursor:pointer}button.secondary{background:#e7eee9;color:#20362b}button.danger{background:#fff0ee;color:var(--red);border:1px solid #f2cbc7}button:disabled{opacity:.45}
+.panel{margin:10px 0}.panel h2{font-size:18px;margin:0 0 12px}.panel h3{font-size:15px;margin:16px 0 8px}label{font-size:13px;color:var(--muted);display:block;margin:12px 0 5px}
+input,select,textarea{width:100%;border:1px solid #cbd7ce;border-radius:9px;padding:11px 10px;background:#fff;color:var(--ink);font:inherit;font-size:16px}
+textarea{min-height:80px;resize:vertical}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}.buttons{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}.buttons button{flex:1}.note{font-size:12px;color:var(--muted);line-height:1.6}.notice{padding:10px 12px;border-radius:10px;background:#e7eee9;margin:10px 0;font-size:13px;display:none}.record{border:1px solid var(--line);border-radius:12px;padding:12px;margin:9px 0;background:#fff}.record-top{display:flex;justify-content:space-between;gap:8px;align-items:center}.pill{font-size:11px;background:#e7eee9;border-radius:99px;padding:4px 7px;white-space:nowrap}.muted{color:var(--muted);font-size:13px;line-height:1.6}.hidden{display:none!important}.good{color:var(--green)}.bad{color:var(--red)}footer{font-size:11px;color:var(--muted);padding:14px 2px;line-height:1.6}
+</style>
+</head>
+<body><main>
+<section class="hero"><h1>🐎 競馬ブック2026</h1><p>v0.6｜保存・復元対応<br>予想を残して、結果から学ぶ。実際の馬券購入は行わない記録アプリです。</p></section>
+<div class="stats">
+ <div class="stat"><small>記録した予想</small><strong id="count">0</strong></div>
+ <div class="stat"><small>結果記録済み</small><strong id="completed">0</strong></div>
+ <div class="stat"><small>記録上の購入額</small><strong id="spent">¥0</strong></div>
+ <div class="stat"><small>記録上の収支</small><strong id="profit">¥0</strong></div>
+</div>
+<div id="notice" class="notice" role="status"></div>
+<nav>
+ <button data-tab="add">予想記録</button><button class="secondary" data-tab="results">結果・分析</button><button class="secondary" data-tab="backup">保存・復元</button>
+</nav>
+<section id="tab-add">
+ <div class="panel"><h2>レース前の予想を記録</h2>
+ <form id="predictionForm">
+ <div class="grid2"><div><label for="date">レース日</label><input id="date" type="date" required></div><div><label for="venue">競馬場</label><select id="venue"><option>東京</option><option>京都</option><option>中山</option><option>阪神</option><option>札幌</option><option>函館</option><option>福島</option><option>新潟</option><option>中京</option><option>小倉</option><option>その他</option></select></div></div>
+ <div class="grid2"><div><label for="raceNo">レース番号</label><select id="raceNo"></select></div><div><label for="ticket">券種</label><select id="ticket"><option>ワイド</option><option>馬連</option><option>三連複</option><option>三連単</option><option>複勝</option><option>単勝</option><option>その他</option></select></div></div>
+ <label for="focus">注目馬・買い目メモ</label><input id="focus" placeholder="例：⑥軸、穴は⑫" required>
+ <div class="grid2"><div><label for="stake">購入額（円）</label><input id="stake" type="number" min="0" step="100" value="300" required></div><div><label for="score">評価点（0〜100）</label><input id="score" type="number" min="0" max="100" value="70" required></div></div>
+ <label for="mode">記録の種類</label><select id="mode"><option value="検討">検討した予想（未購入）</option><option value="購入">実際に購入した馬券</option></select>
+ <label for="memo">予想根拠</label><textarea id="memo" placeholder="展開、脚質、枠順、馬場、オッズ、騎手、パドックなど"></textarea>
+ <div class="buttons"><button type="submit">予想を保存</button><button type="reset" class="secondary">入力をクリア</button></div>
+ </form><p class="note">保存先はこのWebアプリのiPhone内ブラウザ領域です。Safariの履歴・Webサイトデータ削除やアプリ環境の変更で消える可能性があるため、定期的にバックアップしてください。</p></div>
+ <div class="panel"><h2>予想一覧</h2><div id="records"></div></div>
+</section>
+<section id="tab-results" class="hidden">
+ <div class="panel"><h2>結果を記録</h2><label for="resultRecord">結果待ちのレース</label><select id="resultRecord"></select>
+ <label for="top3">1〜3着の馬番（例：3-7-12）</label><input id="top3" placeholder="3-7-12">
+ <label for="payout">払戻金合計（円。不的中は0）</label><input id="payout" type="number" min="0" value="0">
+ <div class="buttons"><button id="saveResult">結果を保存</button></div><p class="note">払戻金は、その記録に対応する購入分の合計払戻額を入力してください。検討だけの予想は購入額に計上されません。</p></div>
+ <div class="panel"><h2>成績分析</h2><div id="analysis"></div></div>
+</section>
+<section id="tab-backup" class="hidden">
+ <div class="panel"><h2>バックアップ</h2><p class="muted">JSONファイルに全記録を保存し、あとから復元できます。CSVは表計算アプリで分析するための書き出しです。</p>
+ <div class="buttons"><button id="exportJson">JSONを保存</button><button id="exportCsv" class="secondary">CSVを書き出す</button></div>
+ <label for="importFile">JSONバックアップを復元</label><input id="importFile" type="file" accept=".json,application/json">
+ <div class="buttons"><button id="importJson" class="secondary">選択したJSONを復元</button></div>
+ <p class="note">復元は現在の記録をバックアップ内容で置き換えます。必要なら先に現在のデータを保存してください。</p></div>
+ <div class="panel"><h2>データ保護の状態</h2><p id="storageStatus" class="muted"></p><p class="note">このアプリはJRA公式サービスと接続していません。出馬表・オッズを自動取得せず、馬券購入も行いません。</p>
+ <button id="deleteAll" class="danger">すべての記録を削除</button></div>
+</section>
+<footer>競馬ブック2026 v0.6 · 記録・検証用。回収率は記録された購入分だけを集計します。予想の正確性や利益を保証するものではありません。</footer>
+</main>
+<script>
+(function(){
+"use strict";
+const KEY="keiba_book_2026_v06_records";
+let records=[];
+const $=id=>document.getElementById(id);
+const yen=n=>"¥"+Number(n||0).toLocaleString("ja-JP");
+const escapeHtml=s=>String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function notify(msg){const n=$("notice");n.textContent=msg;n.style.display="block";window.scrollTo({top:0,behavior:"smooth"});}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(records));return true}catch(e){notify("端末内への保存に失敗しました。空き容量やブラウザ設定を確認し、JSONバックアップを試してください。");return false}}
+function load(){try{const raw=localStorage.getItem(KEY);if(raw){const parsed=JSON.parse(raw);if(Array.isArray(parsed))records=parsed}}catch(e){records=[];notify("保存データを読み込めませんでした。バックアップがあれば復元してください。")}render()}
+function switchTab(tab){["add","results","backup"].forEach(t=>$("tab-"+t).classList.toggle("hidden",t!==tab));document.querySelectorAll("nav button").forEach(b=>{const active=b.dataset.tab===tab;b.classList.toggle("secondary",!active)});if(tab==="backup")storageInfo();if(tab==="results")renderResults()}
+function totals(){const purchased=records.filter(r=>r.mode==="購入");const spent=purchased.reduce((s,r)=>s+Number(r.stake||0),0);const paid=purchased.filter(r=>r.resultSaved).reduce((s,r)=>s+Number(r.payout||0),0);return {spent,paid,profit:paid-spent,completed:records.filter(r=>r.resultSaved).length}}
+function render(){const t=totals();$("count").textContent=records.length;$("completed").textContent=t.completed;$("spent").textContent=yen(t.spent);$("profit").textContent=yen(t.profit);$("profit").className=t.profit>=0?"good":"bad";
+const container=$("records");if(!records.length){container.innerHTML='<p class="muted">まだ記録がないよ。まずは1レース登録しよう！</p>'}else{container.innerHTML=[...records].reverse().map(r=>`<article class="record"><div class="record-top"><strong>${escapeHtml(r.date)} ${escapeHtml(r.venue)}${escapeHtml(r.raceNo)}R</strong><span class="pill">${escapeHtml(r.resultSaved?"結果記録済み":r.mode==="購入"?"購入・結果待ち":"検討・未購入")}</span></div><p>${escapeHtml(r.focus)} · ${escapeHtml(r.ticket)} · ${yen(r.stake)} · 評価${escapeHtml(r.score)}点</p>${r.resultSaved?`<p class="muted">着順：${escapeHtml(r.top3)} ／ 払戻：${yen(r.payout)}</p>`:""}${r.memo?`<p class="muted">${escapeHtml(r.memo)}</p>`:""}<div class="buttons"><button class="secondary" data-result="${r.id}">結果を入力</button><button class="danger" data-delete="${r.id}">削除</button></div></article>`).join("")}
+container.querySelectorAll("[data-result]").forEach(b=>b.addEventListener("click",()=>{switchTab("results");$("resultRecord").value=b.dataset.result;renderResults();$("top3").focus()}));
+container.querySelectorAll("[data-delete]").forEach(b=>b.addEventListener("click",()=>{if(confirm("この記録を削除しますか？")){records=records.filter(r=>String(r.id)!==b.dataset.delete);persist();render();notify("記録を削除しました。")}}));
+renderResults();storageInfo()}
+function renderResults(){const sel=$("resultRecord");if(!sel)return;const pending=records.filter(r=>!r.resultSaved);sel.innerHTML=pending.length?pending.map(r=>`<option value="${r.id}">${escapeHtml(r.date)} ${escapeHtml(r.venue)}${escapeHtml(r.raceNo)}R — ${escapeHtml(r.focus)}</option>`).join(""):'<option value="">結果待ちの記録なし</option>';
+const t=totals();const roi=t.spent?(t.paid/t.spent*100).toFixed(1)+"%":"—";const known=records.filter(r=>r.mode==="購入"&&r.resultSaved);const wins=known.filter(r=>Number(r.payout)>0).length;
+$("analysis").innerHTML=`<div class="grid2"><div class="stat"><small>購入額合計</small><strong>${yen(t.spent)}</strong></div><div class="stat"><small>払戻金合計</small><strong>${yen(t.paid)}</strong></div><div class="stat"><small>収支</small><strong class="${t.profit>=0?"good":"bad"}">${yen(t.profit)}</strong></div><div class="stat"><small>回収率</small><strong>${roi}</strong></div></div><p class="muted">購入記録のうち結果入力済み：${known.length}件 ／ 払戻金がある記録：${wins}件</p>`;
+$("saveResult").disabled=!pending.length}
+function storageInfo(){const ok=!!window.localStorage;$("storageStatus").textContent=ok?"端末内保存：利用可能（localStorage）。保存の保証はないため、JSONバックアップを定期的に保存してください。":"端末内保存が利用できません。プライベートブラウズ設定などを確認してください。"}
+function download(name,content,type){const blob=new Blob([content],{type});const url=URL.createObjectURL(blob);const a=document.createElement("a");a.href=url;a.download=name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1500)}
+function csvCell(v){return '"'+String(v??"").replace(/"/g,'""')+'"'}
+document.querySelectorAll("nav button").forEach(b=>b.addEventListener("click",()=>switchTab(b.dataset.tab)));
+for(let i=1;i<=12;i++){const o=document.createElement("option");o.value=i;o.textContent=i+"R";if(i===11)o.selected=true;$("raceNo").appendChild(o)}
+$("date").value=new Date().toLocaleDateString("sv-SE");
+$("predictionForm").addEventListener("submit",e=>{e.preventDefault();const stake=Number($("stake").value),score=Number($("score").value);if(stake<0||!Number.isFinite(stake)||score<0||score>100){notify("購入額・評価点を確認してね。");return}
+const r={id:Date.now(),date:$("date").value,venue:$("venue").value,raceNo:$("raceNo").value,ticket:$("ticket").value,focus:$("focus").value.trim(),stake,score,mode:$("mode").value,memo:$("memo").value.trim(),top3:"",payout:0,resultSaved:false,createdAt:new Date().toISOString()};
+records.push(r);if(persist()){render();notify("予想を保存したよ！");$("focus").value="";$("memo").value="";} });
+$("saveResult").addEventListener("click",()=>{const id=$("resultRecord").value;const r=records.find(x=>String(x.id)===String(id));if(!r){notify("結果待ちの記録がありません。");return}const payout=Number($("payout").value);if(payout<0||!Number.isFinite(payout)||!$("top3").value.trim()){notify("着順と払戻金を確認してね。不的中なら払戻金は0円でOK。");return}r.top3=$("top3").value.trim();r.payout=payout;r.resultSaved=true;if(persist()){render();notify("結果を保存したよ！");$("top3").value="";$("payout").value="0"}});
+$("exportJson").addEventListener("click",()=>download("keiba_book_2026_backup.json",JSON.stringify({app:"競馬ブック2026",version:"0.6",exportedAt:new Date().toISOString(),records},null,2),"application/json"));
+$("exportCsv").addEventListener("click",()=>{const header=["日付","競馬場","R","注目馬・買い目","券種","金額","評価点","記録種別","予想根拠","上位着順","払戻金","結果記録済み"];const rows=records.map(r=>[r.date,r.venue,r.raceNo,r.focus,r.ticket,r.stake,r.score,r.mode,r.memo,r.top3,r.payout,r.resultSaved?"はい":"いいえ"]);download("keiba_book_2026.csv","\uFEFF"+[header,...rows].map(row=>row.map(csvCell).join(",")).join("\r\n"),"text/csv;charset=utf-8")});
+$("importJson").addEventListener("click",async()=>{const file=$("importFile").files[0];if(!file){notify("復元するJSONファイルを選択してね。");return}try{const obj=JSON.parse(await file.text());const arr=Array.isArray(obj)?obj:obj.records;if(!Array.isArray(arr)||arr.some(r=>!r||typeof r!=="object"||!r.date||!r.venue)){throw new Error("invalid format")}if(!confirm("現在の"+records.length+"件の記録を置き換えて、"+arr.length+"件を復元します。続けますか？"))return;records=arr.map((r,i)=>({...r,id:r.id??(Date.now()+i),resultSaved:!!r.resultSaved,stake:Number(r.stake)||0,payout:Number(r.payout)||0}));if(persist()){render();notify(records.length+"件を復元しました。")}}catch(e){notify("JSONを読み込めませんでした。競馬ブック2026のバックアップか確認してください。")}});
+$("deleteAll").addEventListener("click",()=>{if(confirm("すべての記録を削除します。この操作は取り消せません。先にバックアップしましたか？")){records=[];persist();render();notify("すべての記録を削除しました。")}});
+if("serviceWorker" in navigator && location.protocol.startsWith("http")){window.addEventListener("load",()=>navigator.serviceWorker.register("./sw.js").catch(()=>{}))}
+load();
+})();
+</script></body></html>
